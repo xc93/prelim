@@ -18,10 +18,9 @@ Proposal}
 \section{Introduction}
 
 A \emph{language framework} is an artifact that allows language designers to 
-define the formal syntax and semantics definitions of their programming 
+define the formal syntax and semantics of their programming 
 languages using an intuitive and easy-to-understand meta-language. 
-Once the formal definition of a programming language is defined,
-the framework automatically generates all language tools of that language from 
+Once the formal syntax and semantics definition is given, the framework automatically generates all language tools of that language from 
 its formal definition in a correct-by-construction manner, at no additional 
 costs. 
 By language tools, I mean both an \emph{implementation} of the language
@@ -65,13 +64,13 @@ using an intuitive and compact human-readable meta-language into
 one that is written in a lower level language (called Kore) where 
 syntactic sugar, user-defined notations, comments, shortcuts, and other
 front end syntax are eliminated.
-The resulting Kore definition is not as human-readable as the original \K 
-definition but can be easily understood and processed by \K's back ends.
+The resulting lower-level Kore definition is not as human-readable as the original \K 
+definition but it can be easily understood and processed by \K's back ends.
 These back ends implement complex algorithms to generate the language tools
-and to conduct tasks such as program execution, formal verification, and 
+and to conduct various tasks such as program execution, formal verification, and 
 symbolic execution. 
 
-Therefore, a serious question is how to guarantee the \emph{correctness}
+A serious question is how to guarantee the \emph{correctness}
 of a language framework implementation, such as \K,  which has a large code 
 base and implements complicated algorithms.
 In other words, if we define a programming language in \K and
@@ -80,14 +79,14 @@ to what extend can we trust the execution result that \K returns?
 Similar questions can be asked not only for program execution but also for
 formal verification, symbolic execution, bounded model checking, 
 and many other formal analysis tools that \K generates for the language.
+In short, what is the trust base of \K?
 
 Currently, to trust the execution result that \K returns
-(or other execution and/or analysis tasks)
+(or any other execution and/or analysis tasks that \K conducts)
 %or any concrete tasks that \K does such as symbolically executing a program for 
 %a given number of steps
 %or verifying a function property of a program, 
-we need to trust the 
-entire code base of \K.
+we need to trust the entire code base of \K, which is large and certainly contains bugs.
 My research goal is to make that trust base smaller, from more than
 500,000 lines of code written in four different programming languages,
 to a small \emph{proof checker}
@@ -114,7 +113,7 @@ The proposed method is based on a \emph{logical foundation} of \K.
 In short, I design a mathematical logic called \emph{matching logic} that aims 
 at serving as the logical foundation of \K. 
 By that, I mean that each \K definition of a programming language $L$
-yields a \emph{matching logic theory} $\Gamma^L$ that includes the definitions 
+yields a \emph{matching logic theory} $\Gamma^L$ that includes the definition
 of
 the syntax and semantics of $L$. 
 Further, each task that \K does for the language $L$ 
@@ -138,15 +137,14 @@ matching logic pattern, intuitively:
 where $\Gamma^\textrm{C}$ is a matching logic theory that includes the formal 
 syntax and semantics of C
 and $\cell[cfg]{\cell[code]{c} \cell[state]{\rho}}$
-is the pattern that represents a computation configuration\footnote{Here, 
-we simplify the actual configurations for the sake of presentation.
-The real configurations for C have more than a hundred \emph{configuration cells} that 
-hold the necessary semantic information needed for program execution.  }
+is the (matching logic) pattern that represents a computation configuration\footnote{The actual computation configurations for C are more complicated, with more than a hundred \emph{configuration cells} that 
+hold the necessary semantic information needed for program execution.
+Here, we simplify it into a configuration with only two cells 
+(\code{code} that holds the computation and \code{state} that holds the program state) for the sake of presentation.}
 where the current code is $c$ and the program state is $\rho$. 
 The symbol ``$\To^*$'' specifies the rewriting/reachability relation
 between the two configurations, meaning that the first configuration
-eventually reaches the second configuration within finitely many execution steps; 
-see \Cref{sec:ml-expressiveness}. 
+eventually reaches the second configuration within finitely many execution steps (\Cref{sec:ml-expressiveness}).
 Its semantics is defined by the matching logic theory $\Gamma^\textrm{C}$ using
 patterns/axioms.
 %Besides program execution, other formal 
@@ -155,52 +153,47 @@ patterns/axioms.
 
 The key idea to achieve a small trust base for \K is as follows. 
 We encode the correctness of \K conducting a task,
-say executing \code{SUM} and returning the value 5050 according to the formal semantics of C, 
+say executing the above C program \code{SUM} and returning the value 5050 using C semantics, 
 into a \emph{matching logic formal proof}
-$\Gamma^\textrm{C} \vdash \varphi$ like \Cref{eq:po-exe-sum}
-that derives $\varphi$ from $\Gamma^L$ using one fixed 
+$\Gamma^\textrm{C} \vdash \varphi$ like \Cref{eq:po-exe-sum},
+which derives $\varphi$ from $\Gamma^L$ using one fixed 
 \emph{matching logic proof system} (\Cref{fig:ps}). 
 The formal proof $\Gamma^\textrm{C} \vdash \varphi$ is further encoded into a 
-\emph{proof object} that is annotated with the detailed proof steps
-that are applied to prove $\varphi$.
-The proof object witnesses the formal proof
-and can be quickly checked by a small matching logic proof checker. 
+\emph{proof object} that is annotated with the detailed proof steps,
+so the proof object witnesses the formal proof
+and can be quickly checked by a \emph{matching logic proof checker},
+which implements the proof rules in the proof system in \Cref{fig:ps}.
 This way, the correctness of \K conducting one task is reduced to
-the correctness of the proof checker checking one proof object,
-which is preferable,
-because the proof checker is significantly smaller than the 
+the correctness of the proof checker checking one proof object.
+This is preferable,
+because the proof checker is much smaller than the 
 entire \K implementations. 
+I implemented a prototype proof checker in \cite{ml-checker} using the Metamath language \cite{metamath} in 245 lines of code.
 
-The key observation is that in the above, 
+The key observation is that
 correctness is established for each individual task that \K does 
-on a case-by-case basis, and not for the entire \K code base. 
+on a \emph{case-by-case} basis, and not for the entire \K code base. 
 If the bugs in \K are not triggered when \K conducts the task, the correctness 
-of that task is not compromised and a proof object can be generated. 
-If the bugs are triggered, the correctness of that task is lost and there does 
-not exist a proof object for the conducted task (and the wrong result that \K 
-returns). 
+is not compromised and a proof object can be generated. 
+If the bugs are triggered, the correctness is lost and there does 
+not exist a corresponding proof object for the wrong result that \K 
+returns.
 Therefore, proof objects serve as \emph{correctness certificates}
 that need to be issued for each tasks that \K carries out. 
 
 The above proposed approach can be broke down into the following deliverables:
 \begin{enumerate}
-\item a proposal of the logical foundation---matching logic; this should 
-include its syntax, semantics, and proof system;
+\item a proposal of the logical foundation---matching logic---of \K; this should include the syntax, the semantics, and the proof system of matching logic;
 \item a collection of matching logic theories that define the common logical 
 systems that are used to specify the formal semantics of programming 
-languages as well as program properties; this guarantees that matching logic 
+languages and program properties; this guarantees that matching logic 
 has the expressiveness that is needed to encode tasks that a language framework 
 should usually support;
-\item a completeness result of the proof system for matching logic;
+\item a completeness result of matching logic proof system;
 this establishes the connection between matching logic semantics and its formal 
 deduction so that we know the proof rules proposed in item 1 are not ad-hoc;
-\item decision procedures for matching logic; this improves the level of 
-automation of the current \K implementations;
-\item a proof checker for matching logic that is small and fast; this makes it 
-trustworthy and practical.
-\item a proof object generator that encodes the tasks that \K does into
-proof objects that can be proof-checked by the proof checker developed in item 
-5. 
+\item decidable fragment of matching logic and their corresponding decision procedures; this brings up the level of automation in the current \K implementations;
+\item a matching logic proof checker that is small and fast and a proof object generator that encodes the tasks that \K conducts such as program execution and formal verification into proof objects that can be proof-checked by the proof checker.
 \end{enumerate}
 
 
@@ -214,7 +207,7 @@ For each item, I associate the corresponding publications (in \textbf{black})
 as well as the planned submissions (in \textbf{\plan{green}}).
 
 \begin{itemize}
-\item Current results that have been published:
+\item Current results that have been published include:
 \begin{enumerate}
 \item \textbf{\cite[LICS2019]{CR19}}: the proposal of matching logic and a 13-rule Hilbert-style proof system 
 (\Cref{sec:ml} and \Cref{fig:ps});
@@ -222,27 +215,24 @@ as well as the planned submissions (in \textbf{\plan{green}}).
 \begin{enumerate}
 \item \textbf{\cite[LICS2019]{CR19}}: FOL, FOL with least fixpoints, modal logic, temporal logics, dynamic logic, modal $\mu$-calculus, and reachability logic;
 \item \textbf{\cite[ICFP2020]{CR20}}: $\lambda$-calculus, $\pi$-calculus, and type systems;
-\item \textbf{\cite[TechRep2020]{CLR20}}: initial algebra semantics, planned for \textbf{\plan{[LICS2021]}}. 
+\item \textbf{\cite[TechRep2020]{CLR20}}: initial algebra semantics, planned for \textbf{\plan{[LICS2021]}};
 \end{enumerate}
 \item \textbf{\cite[OOPSLA2020]{CTR20}}: 
-a prototype of an automated theorem prover for matching logic, with a 
-focus on reasoning about fixpoints and structure contexts (\Cref{sec:mlprover});
+a prototype  automated theorem prover of matching logic, focusing on fixpoitn reasoning (\Cref{sec:mlprover});
 \item \textbf{\cite[LICS2019]{CR19}}: some preliminary completeness results (\Cref{sec:known-complete}).
 \end{enumerate}
-\item Future work (including work that has partial results):
+\item Future work (including work that has partial results) includes:
 \begin{enumerate}
-\item a matching logic proof checker and a proof object generation procedure
-(\Cref{sec:proposed-mlpc}), where
+\item a matching logic proof checker and a procedure to generate proof objects (\Cref{sec:proposed-mlpc}), where
 \begin{enumerate}
-\item an implementation of the proof checker in Metamath and the proof object generation for a simple imperative language are planned for \textbf{\plan{[CAV2021]}};
-\item a full integration of proof object generation into \K is planned for
-\textbf{\plan{[PLDI2022]}}.
+\item an prototype proof checker implemented in Metamath and the proof object generation for a simple imperative language are planned for \textbf{\plan{[CAV2021]}};
+\item a full integration of proof object generation for program execution and formal verification into \K is planned for \textbf{\plan{[PLDI2022]}};
 \end{enumerate}
-\item a completeness theorem that is based on Henkin semantics (\Cref{sec:proposed-complete}), planned for \textbf{[\plan{LICS2021}]};
-\item decidable fragments of matching logic and decision procedures 
+\item a completeness theorem based on Henkin semantics (\Cref{sec:proposed-complete}), planned for \textbf{[\plan{LICS2021}]};
+\item decidable fragments of matching logic and their decision procedures 
 (\Cref{sec:proposed-decision}), planned for \textbf{[\plan{LICS2021}]};
 \item matching logic theories that define separation logic and hyper linear 
-temporal logic (\Cref{sec:proposed-logics}), planned for \textbf{[\plan{POPL2022}]} and \textbf{[\plan{LICS2021}]}.
+temporal logic (\Cref{sec:proposed-logics}), planned for \textbf{[\plan{POPL2022}]} and \textbf{[\plan{LICS2021}]}, respectively.
 \end{enumerate}
 \end{itemize}
 
