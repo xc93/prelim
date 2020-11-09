@@ -1,0 +1,81 @@
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{cleveref}
+\usepackage[T1]{fontenc}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{mathbbol}
+\usepackage{mathtools}
+\usepackage{prftree}
+\usepackage{stackrel}
+\usepackage{stmaryrd}
+\usepackage{url}
+\usepackage{xspace}
+
+%%% Theorem-like environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+
+%%% If using IEEEtrans
+%%% \usepackage{cite}
+%%% \interdisplaylinepenalty=2500
+
+%%% If using article
+\usepackage{cite}
+\allowdisplaybreaks
+
+%%% Generic
+
+\newcommand{\df}{\emph}
+\newcommand{\Rnum}[1]{\MakeUppercase{\romannumeral #1}}
+\newcommand{\rnum}[1]{{\romannumeral #1}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\NNp}{\mathbb{N^+}}
+\newcommand{\pr}[1]{\left\langle#1\right\rangle}
+\newcommand{\Slash}{/\!/\xspace}
+\newcommand{\pset}[1]{\mathcal{P}(#1)}
+\newcommand{\code}[1]{\textsf{\small{#1}}}
+\newcommand{\pto}{\rightharpoonup}
+\newcommand{\Cpp}{C\textsuperscript{++}\xspace}
+% xleftrightarrows, requires "stackrel".
+\newcommand{\leftrarrows}{\mathrel{\raise.75ex\hbox{\oalign{%
+  $\scriptstyle\leftarrow$\cr
+  \vrule width0pt height.5ex$\hfil\scriptstyle\relbar$\cr}}}}
+\newcommand{\lrightarrows}{\mathrel{\raise.75ex\hbox{\oalign{%
+  $\scriptstyle\relbar$\hfil\cr
+  $\scriptstyle\vrule width0pt height.5ex\smash\rightarrow$\cr}}}}
+\newcommand{\Rrelbar}{\mathrel{\raise.75ex\hbox{\oalign{%
+  $\scriptstyle\relbar$\cr
+  \vrule width0pt height.5ex$\scriptstyle\relbar$}}}}
+\newcommand{\longleftrightarrows}{\leftrarrows\joinrel\Rrelbar\joinrel\lrightarrows}
+\makeatletter
+\def\leftrightarrowsfill@{\arrowfill@\leftrarrows\Rrelbar\lrightarrows}
+\newcommand{\xleftrightarrows}[2][]{\ext@arrow 
+3399\leftrightarrowsfill@{#1}{#2}}
+\makeatother
+\newcommand{\abs}[1]{|#1|}
+
+%%% matching logic related
+\newcommand{\SV}{SV}
+\newcommand{\EV}{EV}
+\newcommand{\sig}{\mathbb{\Sigma}}
+\newcommand{\app}{\mathit{app}}
+\newcommand{\imp}{\to}
+\newcommand{\dimp}{\rightleftarrows}
+\newcommand{\cln}{{:}}
+\newcommand{\ld}{\,.\,}
+\newcommand{\Pattern}{\textsc{Pattern}}
+\newcommand{\ip}[2]{[\![#1]\!]_{#2}}
+\newcommand{\prule}[1]{(\textsc{#1})\xspace}
+\newcommand{\appM}{\app_M}
+\newcommand{\appMM}{\overline{\appM}}
+\newcommand{\lfp}{{\mathbf{lfp}\,}}
+\newcommand{\FV}{\mathit{FV}}
+\newcommand{\inh}[1]{\llbracket #1 \rrbracket}
+
+%%% K related
+\newcommand{\K}{$\mathbb{K}$\xspace}
+\newcommand{\cell}[2][]{\pr{#2}_{\code{#1}}}
+
+
